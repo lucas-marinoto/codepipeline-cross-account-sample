@@ -176,6 +176,8 @@ Resources:
   ############################# PRE-REQUISITES FOR PIPELINE ################################
   CodePipelineKMSKey:
     Type: AWS::KMS::Key
+    DependsOn: 
+    - CodePipelineRole
     Properties:
       Description: KMS key for pipeline S3 bucket encryption
       Enabled: true
@@ -217,6 +219,8 @@ Resources:
 
   CodePipelineKMSAlias:
     Type: AWS::KMS::Alias
+    DependsOn: 
+    - CodePipelineKMSKey
     Properties:
       AliasName: !Sub alias/serverless-codepipeline-key
       TargetKeyId: !GetAtt CodePipelineKMSKey.Arn
