@@ -10,3 +10,6 @@ In this project we are going to be implementing cross account deployment strateg
 
 This library is licensed under the MIT-0 License. See the LICENSE file.
 
+References:
+https://www.triumphtech.com/building-a-ci-cd-pipeline-for-cross-account-deployment-of-an-aws-lambda-api-with-the-serverless-framework/
+https://levelup.gitconnected.com/automate-cross-account-cloudformation-deployment-using-aws-codepipeline-c71d81b45722
