@@ -130,21 +130,79 @@ Resources:
                 BranchName: !Ref CodeCommitRepoBranch
                 PollForSourceChanges: False
                 RepositoryName: !GetAtt CodeCommitRepo.Name
+        
+        # - Name: Deploy-1
+        #   Actions:
+        #     - Name: Deploy-CloudFormation
+        #       ActionTypeId:
+        #         Category: DeployCFN-DEV
+        #         Owner: AWS
+        #         Provider: CloudFormation
+        #         Version: '1'
+        #       InputArtifacts:
+        #         - Name: SourceArtifact
+        #       Configuration:
+        #         ActionMode: CREATE_UPDATE
+        #         Capabilities: CAPABILITY_IAM
+        #         RoleArn: arn:aws:iam::113815276808:role/cf-execution-role-serverless
+        #         StackName: teste-stack-cross-account-codepipeline
+        #         TemplatePath: !Sub "SourceCode::s3-template-cfn/s3.yaml"
+        #       RoleArn: arn:aws:iam::113815276808:role/cross-account-role-serverless-deployment
+        #       RunOrder: 1
+
         - Name: Deploy
           Actions:
-            - Name: Deploy-Lambda
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: 1
-              RunOrder: 20
-              InputArtifacts:
-                - Name: SourceArtifact
-              OutputArtifacts:
-                - Name: DeployArtifact
-              Configuration:
-                ProjectName: !Ref CodeDeploy
+          - Name: CloudFormationDeploy
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Provider: CloudFormation
+              Version: '1'
+            InputArtifacts:
+              - Name: SourceArtifact
+            Configuration:
+              ActionMode: CREATE_UPDATE
+              Capabilities: CAPABILITY_IAM
+              RoleArn: arn:aws:iam::113815276808:role/cf-execution-role-serverless
+              StackName: teste-stack-cross-account-codepipeline
+              TemplatePath: !Sub "SourceArtifact::s3-template-cfn/s3.yaml"
+            RunOrder: 1
+
+        # - Name: Deploy
+        #   Actions:
+        #     - Name: Deploy-Lambda
+        #       ActionTypeId:
+        #         Category: Build
+        #         Owner: AWS
+        #         Provider: CloudFormation
+        #         Version: 1
+        #       RunOrder: 2
+        #       InputArtifacts:
+        #         - Name: SourceArtifact
+        #       OutputArtifacts:
+        #         - Name: DeployArtifact
+        #       Configuration:
+        #         ActionMode: CREATE_UPDATE
+        #         Capabilities: CAPABILITY_IAM
+        #         RoleArn: arn:aws:iam::113815276808:role/cf-execution-role-serverless
+        #         StackName: teste-stack-cross-account-codepipeline
+        #         TemplatePath: !Sub "SourceArtifact::s3-template-cfn/s3.yaml"
+
+        # - Name: Deploy
+        #   Actions:
+        #     - Name: Deploy-Lambda
+        #       ActionTypeId:
+        #         Category: Build
+        #         Owner: AWS
+        #         Provider: CodeBuild
+        #         Version: 1
+        #       RunOrder: 20
+        #       InputArtifacts:
+        #         - Name: SourceArtifact
+        #       OutputArtifacts:
+        #         - Name: DeployArtifact
+        #       Configuration:
+        #         ProjectName: !Ref CodeDeploy
 
   CodeCheckinCloudWatchEvent:
     Type: AWS::Events::Rule
@@ -272,6 +330,7 @@ Resources:
             Principal:
               AWS:
                 - !GetAtt CodePipelineRole.Arn
+                - !GetAtt CodeBuildRole.Arn
 
   CodeBuildRole:
     Type: AWS::IAM::Role
@@ -350,6 +409,12 @@ Resources:
               - codecommit:*
             Resource:
               - !GetAtt CodeCommitRepo.Arn
+          -  # Allow codebuild to access repos github
+            Sid: GithubAccess
+            Effect: Allow
+            Action:
+              - codestar-connections:*
+            Resource: '*'
 
   CodePipelineRole:
     Type: AWS::IAM::Role
@@ -444,6 +509,12 @@ Resources:
               - sts:AssumeRole
             Resource:
               - !Sub arn:aws:iam::${TargetAccountID}:role/${CodePipelineAssumeRoleName}
+          -  # Allow codebuild to access repos github
+            Sid: GithubAccess
+            Effect: Allow
+            Action:
+              - codestar-connections:*
+            Resource: '*'
 
   CloudWatchPipelineTriggerRole:
     Type: AWS::IAM::Role
