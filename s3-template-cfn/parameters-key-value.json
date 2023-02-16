@@ -1,5 +1,3 @@
 {
-  "Parameters": {
-    "S3BucketName": "testebucketlucasmmcfncode"
-  }
+  "S3BucketName": "testebucketlucasmmcfncode"
 }
