@@ -1,3 +1,4 @@
 [
-  "S3BucketName=testebucketlucasmmcfncode2"
+  "S3BucketName=testebucketlucasmmcfncode2",
+  "DockerImage={{DOCKER_IMAGE}}"
 ]

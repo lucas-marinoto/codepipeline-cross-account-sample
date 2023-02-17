@@ -8,9 +8,12 @@ Parameters:
     Type: String
     Default: teste-bucket-lucasmm
 
+  # DockerImage: 
+  #   Type: AWS::SSM::Parameter::Value<String>
+  #   Default: /Dev/Docker/Image
+
   DockerImage: 
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /Dev/Docker/Image
+    Type: String
 
 Resources:
   SampleCloudFormationS3Bucket:
